@@ -2,6 +2,7 @@ class ApacheSerf < Formula
   desc "High-performance asynchronous HTTP client library"
   homepage "https://serf.apache.org/"
   license "Apache-2.0"
+  revision 1
   head "https://github.com/apache/serf.git", branch: "trunk"
 
   stable do
@@ -14,6 +15,14 @@ class ApacheSerf < Formula
       url "https://github.com/apache/serf/commit/15ca053c4bfb00ad4d262686e1a30b5795b6ab81.patch?full_index=1"
       sha256 "d2ab43081a2fc60c6d00df1afc6946895921c91d09cac05a186f820282bea9c6"
       type :backport
+    end
+
+    # Apply minimal Fedora patch to fix build with OpenSSL until next release with:
+    # https://github.com/apache/serf/commit/e8d61020b5f9afa21c06a1e2d72e7052d8e72225
+    patch do
+      url "https://src.fedoraproject.org/rpms/libserf/raw/b8f0ecc6dffd2e0cffc75f33644f0e16cc91862a/f/libserf-openssl4.patch"
+      sha256 "09649037c9ff17e282ffae0fa0d65f0376b55d341359ba45a1df3f666615e193"
+      type :unofficial
     end
   end
 
@@ -31,7 +40,7 @@ class ApacheSerf < Formula
   depends_on "pkgconf" => :test
   depends_on "apr"
   depends_on "apr-util"
-  depends_on "openssl@3"
+  depends_on "openssl@4"
 
   uses_from_macos "krb5"
 
@@ -39,7 +48,7 @@ class ApacheSerf < Formula
     depends_on "zlib-ng-compat"
   end
 
-  def openssl = "openssl@3"
+  def openssl = "openssl@4"
 
   def install
     # scons ignores our compiler and flags unless explicitly passed
