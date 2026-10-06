@@ -4,6 +4,7 @@ class NetSnmp < Formula
   url "https://downloads.sourceforge.net/project/net-snmp/net-snmp/5.9.5.2/net-snmp-5.9.5.2.tar.gz"
   sha256 "16707719f833184a4b72835dac359ae188123b06b5e42817c00790d7dc1384bf"
   license all_of: ["MIT-CMU", "MIT", "BSD-3-Clause"]
+  revision 2
   compatibility_version 1
   head "https://github.com/net-snmp/net-snmp.git", branch: "master"
 
@@ -24,7 +25,7 @@ class NetSnmp < Formula
 
   keg_only :provided_by_macos
 
-  depends_on "openssl@3"
+  depends_on "openssl@4"
 
   on_arm do
     depends_on "autoconf" => :build
@@ -35,6 +36,16 @@ class NetSnmp < Formula
   # Fix -flat_namespace being used on x86_64 Big Sur and later.
   patch do
     file "Patches/libtool/configure-big_sur.diff"
+  end
+
+  # Apply Debian patch to fix link failure: undefined reference to `run_shell_command'
+  patch do
+    on_linux do
+      url "https://salsa.debian.org/debian/net-snmp/-/raw/27ec8dbccda7b9b2f78f38445b5735f0398384f3/debian/patches/makefile_trap_needs_agent"
+      sha256 "b884acb45f79ab324fb31faa5a3a97bf7ced948177a2d888af9df8dd355aa6de"
+      type :unofficial
+      resolves "https://github.com/net-snmp/net-snmp/issues/434"
+    end
   end
 
   def install
@@ -49,7 +60,7 @@ class NetSnmp < Formula
       "--without-kmem-usage",
       "--disable-embedded-perl",
       "--without-perl-modules",
-      "--with-openssl=#{formula_opt_prefix("openssl@3")}",
+      "--with-openssl=#{formula_opt_prefix("openssl@4")}",
     ]
 
     system "autoreconf", "--force", "--install", "--verbose" if Hardware::CPU.arm?
